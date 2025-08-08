@@ -11,7 +11,7 @@ events = [
     (41, "Comida", (18,18)),
     (70, "Sino", (0,0)),
     (71, "Comida", (18,18)),
-    (100, "Sino", (18,18))
+    (100, "Sino", (0,0))
 ]
 current_time = 0
 duration = 120 #Duração total da simulação
@@ -34,7 +34,6 @@ while current_time < duration:
 
         #Se um evento ocorreu, ele deve ser "percebido" pelo agente.
         agente.active_traces.append((event_type, current_time))
-        agente.perceive_event(event_type, pos)
 
         if event_type == "Sino":
             agente.perceive_event(event_type, pos)
@@ -49,9 +48,11 @@ while current_time < duration:
     agente.move_to_target()
 
     #O passo finaliza com o avanço do tempo da simulação
-    time.sleep(0.1)
+    time.sleep(0.003)
+    env.show_grid()
     current_time += 0.3
 
 print(f"\n--- FIM DA SIMULAÇÃO (t={current_time:.1f}s) ---")
 final_weight = agente.w['Sino'].get('Comida', 0)
 print(f"Força final da associação 'Sino' -> 'Comida': {final_weight:.4f}")
+print(agente.w)

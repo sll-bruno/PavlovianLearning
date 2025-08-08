@@ -5,13 +5,14 @@ class Agent:
         self.position = start_position
         self.env = env
         self.target = None
+        self.env.grid[start_position[0]][start_position[1]] = "A"  # Marca a posição inicial do agente na grade
         self.action_log = [start_position]
-        self.last_know_food_pos = None
+        self.last_known_food_pos = None
 
         #Parâmetros do modelo
         #Learning rate(Alfa): Indica quão grande será a alteração na força de associação para um determinado aprendizado
         #Esse valor esta associado ao Estimulo Condicionado que induz uma reação do agente ("Notorioedade" do estimulo)
-        self.alpha = 0.001
+        self.alpha = 0.02
         #Reinforcement rate (Beta): Indica a força de associação entre o Estimulo Condicionado e o Estimulo Incondicionado
         self.betha = 1
         #Saliencia de estimulo para penalidade
@@ -35,8 +36,8 @@ class Agent:
         #Contem tuplas do tipo (Tipo de traço: String, inicio: Float)
         self.active_traces = []
 
-    def calculate_distance(self, target_position):
-        return sqrt((self.position[0] - target_position[0]) ** 2 + (self.position[1] - target_position[1]) ** 2)
+    def calculate_distance(self, possible_next_position ,target_position):
+        return sqrt((possible_next_position[0] - target_position[0]) ** 2 + (possible_next_position[1] - target_position[1]) ** 2)
     
     def set_target(self):
         if self.env.food_pos is not None:
@@ -63,7 +64,7 @@ class Agent:
                 #Verificamos se a nova posição é válida. Caso a posição seja válida, calculamos a distância
                 #Euclidiana entre a nova posição e o alvo.
                 if self.env.is_valid_position(next_position):
-                    distance = self.calculate_distance(next_position)
+                    distance = self.calculate_distance(next_position, self.env.food_pos)
                     
                     #Se a distância for menor que a distância mínima encontrada até agora, atualizamos a melhor posição
                     if distance < min_distance:
@@ -71,14 +72,19 @@ class Agent:
                         best_next_position = next_position
 
         if best_next_position:
-            self.position = best_next_position
-            self.action_log.append(self.position)
-            print(f"Agente se moveu para {self.position}")
+            #self.env.grid[self.position[0]][self.position[1]] = "C"
+            #self.position = best_next_position
+            #self.action_log.append(self.position)
+            #self.env.grid[self.position[0]][self.position[1]] = "A"
+            #print(f"Agente se moveu para {self.position}")
+            print("Agente se moveu")
 
     def perceive_event(self, event_type, position):
 
-        associative_strength = self.w[event_type].get("Comida", 0.0) 
+        associative_strength = self.w[event_type].get("Comida", 0.0)
+        print(f"Força associativa atual para o evento '{event_type}': {associative_strength:.4f}") 
         if associative_strength > self.prediction_threshold:
+            print(("AGENTE ESTA SE MOVENDO EM DIREÇÂO A COMIDA"))
             if self.last_known_food_pos:
                 self.target = self.last_known_food_pos 
         
@@ -88,7 +94,7 @@ class Agent:
             for e2,t2 in self.active_traces:
                 if e1 != e2 and self.env.food_pos is not None:
 
-                    if t1 < t2:
+                    if e2 == "Comida" and e1 != "Comida" and t1 < t2:
                         self.w[e1][e2] += self.alpha * self.betha * (self.reward - self.w[e1][e2])
 
         for e1, t1 in finished_traces:
