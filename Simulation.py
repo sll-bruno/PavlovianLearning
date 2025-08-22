@@ -1,25 +1,15 @@
 import time
 from Environment import Environment
 from Agent import Agent
-from EventController import EventController
+from EventController import EventController, simple_conditioning_events, extinction_events, latent_inhibition_events, blocking_events, secondary_conditioning_events
 
-#Eventos de Condicionamento Simples (Figura 4, primeira linha, do artigo)
-events = [
-    (10, "Sino", (0,0)),
-    (11, "Comida", (18,18)),
-    (40, "Sino", (0,0)),
-    (41, "Comida", (18,18)),
-    (70, "Sino", (0,0)),
-    (71, "Comida", (18,18)),
-    (100, "Sino", (0,0))
-]
 current_time = 0
 duration = 120 #Duração total da simulação
 
 #Instancia os elementos da simulação
 env = Environment()
 agente = Agent((5,5), env)
-controller = EventController(events)
+controller = EventController(simple_conditioning_events)
 
 #Loop principal da simulação
 print("Iniciando simulação...")
@@ -36,7 +26,7 @@ while current_time < duration:
         agente.active_traces.append((event_type, current_time))
 
         if event_type == "Sino":
-            agente.perceive_event(event_type, pos)
+            agente.perceive_event(event_type)
         elif event_type == "Comida":
             env.place_food(pos)
             agente.last_known_food_pos = pos

@@ -39,7 +39,3 @@ class Environment:
         if self.is_valid_position(position):
             self.grid[position[0]][position[1]] = "F" 
             self.food_pos = position
-
-
-env = Environment()
-print(env.show_grid())
